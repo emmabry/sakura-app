@@ -22,7 +22,6 @@ def img_to_text():
     text = pytesseract.image_to_string(image, lang='jpn')
     return text
 
-
 def translate(img_txt):
     translator = Translator()
     result = translator.translate(text=img_txt, src="ja", dest="en")

@@ -2,7 +2,6 @@ from sqlalchemy import create_engine, Column, Integer, String, Text, func
 from sqlalchemy.orm import sessionmaker, declarative_base
 from gtts import gTTS
 
-# Create an engine that connects to the SQLite database
 engine = create_engine('sqlite:///data/jmdict.db')
 
 # Define a base class for declarative class definitions
