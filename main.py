@@ -22,11 +22,12 @@ def convert_image():
         return render_template('tospeech.html', translation=translated_text, image=file_path, audio=audio)
     return render_template('tospeech.html')
 
+
 @app.route('/vocab', methods=['GET'])
 def get_vocab():
     vocab_list = get_entries()
     return render_template('vocab.html', vocab_list=vocab_list)
 
+
 if __name__ == '__main__':
     app.run(debug=True)
-

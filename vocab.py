@@ -4,11 +4,9 @@ from gtts import gTTS
 
 engine = create_engine('sqlite:///data/jmdict.db')
 
-# Define a base class for declarative class definitions
 Base = declarative_base()
 
 
-# Define a model for the `entry` table
 class Entry(Base):
     __tablename__ = 'entry'
     id = Column(Integer, primary_key=True)
@@ -18,7 +16,6 @@ class Entry(Base):
     position = Column(String)
 
 
-# Create a session
 Session = sessionmaker(bind=engine)
 session = Session()
 
