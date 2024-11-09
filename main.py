@@ -11,7 +11,7 @@ import os
 
 # App Config
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.urandom(32)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(BASE_DIR, 'data', 'sakura.db')}"
 
@@ -50,7 +50,7 @@ class User(db.Model, UserMixin):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', logged_in=current_user.is_authenticated)
 
 
 @app.route('/register', methods=['POST', 'GET'])
@@ -73,28 +73,33 @@ def register():
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user)
-            return render_template('loggedin.html', user=new_user)
+            return render_template('loggedin.html', user=new_user, logged_in=current_user.is_authenticated)
     elif not form.validate_on_submit():
         print(form.errors)
-    return render_template('register.html', form=form)
+    return render_template('register.html', form=form, logged_in=current_user.is_authenticated)
 
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
+        query = db.session.execute(db.select(User).where(User.username == form.username.data))
+        user = query.scalar()
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
+            return render_template('loggedin.html', user=user, logged_in=current_user.is_authenticated)
         elif not user:
             flash('User does not exist.')
             return redirect(url_for('login'))
         elif not check_password_hash(user.password, form.password.data):
             flash('Invalid password.')
             return redirect(url_for('login'))
-    return render_template('login.html', form=form)
+    return render_template('login.html', form=form, logged_in=current_user.is_authenticated)
 
-
+@app.route('/logout', methods=['POST', 'GET'])
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
 @app.route('/upload', methods=['POST', 'GET'])
 def convert_image():
     if request.method == 'POST':
@@ -104,8 +109,8 @@ def convert_image():
         japanese_text = img_to_text().replace(" ", "")
         translated_text = translate(japanese_text)
         audio = get_speech(japanese_text, 'static/speech.mp3')
-        return render_template('tospeech.html', translation=translated_text, image=file_path, audio=audio)
-    return render_template('tospeech.html')
+        return render_template('tospeech.html', translation=translated_text, image=file_path, audio=audio, logged_in=current_user.is_authenticated)
+    return render_template('tospeech.html', logged_in=current_user.is_authenticated)
 
 
 @app.route('/vocab', methods=['GET'])
@@ -124,7 +129,7 @@ def get_vocab():
         entries.append(mydict)
         get_speech(entry.reading, f'static/vocab{n}.mp3')
         n += 1
-    return render_template('vocab.html', vocab_list=entries)
+    return render_template('vocab.html', vocab_list=entries, logged_in=current_user.is_authenticated)
 
 
 if __name__ == '__main__':

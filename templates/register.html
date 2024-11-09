@@ -6,6 +6,13 @@
     <div class="col-lg-6 mx-auto">
       <p class="lead mb-4">Register for Sakura.</p>
       <p class="lead mb-4">Already have an account? <a href="{{ url_for('login') }}">Login</a> instead</p>
+        {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <p style="color: red;"> {{ message }}</p>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
       <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
         <form method="POST" action="{{ url_for('register') }}">
             {{ form.csrf_token }}
