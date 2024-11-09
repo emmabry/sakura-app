@@ -10,9 +10,9 @@ load_dotenv()
 TESSDATA_PREFIX = os.getenv('TESSDATA_PREFIX')
 os.environ['TESSDATA_PREFIX'] = TESSDATA_PREFIX
 
-def get_speech(requested_text):
+def get_speech(requested_text, filepath):
     tts = gTTS(requested_text, lang='ja')
-    with open('static/speech.mp3', 'wb') as f:
+    with open(filepath, 'wb') as f:
         tts.write_to_fp(f)
     return tts
 

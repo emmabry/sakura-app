@@ -7,7 +7,8 @@
       <p class="lead mb-4">Login to create, save, and practice flashcard decks.</p>
       <p class="lead mb-4">Dont have an account? <a href="{{ url_for('register') }}">Sign up</a> instead</p>
       <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-        <form method="POST" action="/">
+        <form method="POST" action="{{ url_for('login') }}">
+            {{ form.csrf_token }}
       <div class="form-group">
     {{ form.username.label }} <br> {{ form.username(size=20) }}
       </div>

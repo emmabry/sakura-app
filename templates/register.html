@@ -7,7 +7,8 @@
       <p class="lead mb-4">Register for Sakura.</p>
       <p class="lead mb-4">Already have an account? <a href="{{ url_for('login') }}">Login</a> instead</p>
       <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-        <form method="POST" action="/">
+        <form method="POST" action="{{ url_for('register') }}">
+            {{ form.csrf_token }}
             <div class="form-group">
     {{ form.email.label }} <br> {{ form.email(size=20) }}
       </div>
