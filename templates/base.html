@@ -39,7 +39,7 @@
         <li class="nav-item"><a href="/" class="nav-link" >Home</a></li>
         <li class="nav-item"><a href="{{ url_for('convert_image') }}" class="nav-link">Image to Speech</a></li>
         <li class="nav-item"><a href="{{ url_for('get_vocab') }}" class="nav-link">Vocab</a></li>
-        <li class="nav-item"><a href="#" class="nav-link">Tweets</a></li>
+        <li class="nav-item"><a href="{{ url_for('flashcards') }}" class="nav-link">Flashcards</a></li>
           {%  if logged_in == True %}
         <li class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link active">Logout</a></li>
           {% else %}

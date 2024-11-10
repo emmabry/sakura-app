@@ -8,7 +8,6 @@ from sqlalchemy.orm import DeclarativeBase
 from flask_sqlalchemy import SQLAlchemy
 import os
 
-
 # App Config
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
@@ -18,9 +17,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(BASE_DIR, 'dat
 # Login Config
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(user_id)
+
 
 # DB Config
 class Base(DeclarativeBase):
@@ -38,6 +40,7 @@ class Entry(db.Model):
     reading = Column(String)
     gloss = Column(Text)
     position = Column(String)
+
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
@@ -74,8 +77,6 @@ def register():
             db.session.commit()
             login_user(new_user)
             return render_template('loggedin.html', user=new_user, logged_in=current_user.is_authenticated)
-    elif not form.validate_on_submit():
-        print(form.errors)
     return render_template('register.html', form=form, logged_in=current_user.is_authenticated)
 
 
@@ -96,10 +97,13 @@ def login():
             return redirect(url_for('login'))
     return render_template('login.html', form=form, logged_in=current_user.is_authenticated)
 
+
 @app.route('/logout', methods=['POST', 'GET'])
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+
 @app.route('/upload', methods=['POST', 'GET'])
 def convert_image():
     if request.method == 'POST':
@@ -109,7 +113,8 @@ def convert_image():
         japanese_text = img_to_text().replace(" ", "")
         translated_text = translate(japanese_text)
         audio = get_speech(japanese_text, 'static/speech.mp3')
-        return render_template('tospeech.html', translation=translated_text, image=file_path, audio=audio, logged_in=current_user.is_authenticated)
+        return render_template('tospeech.html', translation=translated_text, image=file_path, audio=audio,
+                               logged_in=current_user.is_authenticated)
     return render_template('tospeech.html', logged_in=current_user.is_authenticated)
 
 
@@ -130,6 +135,11 @@ def get_vocab():
         get_speech(entry.reading, f'static/vocab{n}.mp3')
         n += 1
     return render_template('vocab.html', vocab_list=entries, logged_in=current_user.is_authenticated)
+
+
+@app.route('/flashcards', methods=['POST', 'GET'])
+def flashcards():
+    return render_template('flashcards.html', logged_in=current_user.is_authenticated)
 
 
 if __name__ == '__main__':
