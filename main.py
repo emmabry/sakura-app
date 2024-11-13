@@ -141,6 +141,10 @@ def get_vocab():
 def flashcards():
     return render_template('flashcards.html', logged_in=current_user.is_authenticated)
 
+@app.route('/set', methods=['POST', 'GET'])
+def view_set():
+    return render_template('set.html', logged_in=current_user.is_authenticated)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
