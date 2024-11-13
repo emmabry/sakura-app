@@ -7,6 +7,7 @@ from sqlalchemy import Column, Integer, String, Text, func
 from sqlalchemy.orm import DeclarativeBase
 from flask_sqlalchemy import SQLAlchemy
 import os
+import csv
 
 # App Config
 app = Flask(__name__)
@@ -33,13 +34,13 @@ db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
 
-class Entry(db.Model):
-    __tablename__ = 'entry'
+class Vocab(db.Model):
+    __tablename__ = 'vocab'
     id = Column(Integer, primary_key=True)
-    kanji = Column(String)
+    word = Column(String)
     reading = Column(String)
-    gloss = Column(Text)
-    position = Column(String)
+    meaning = Column(Text)
+    level = Column(String)
 
 
 class User(db.Model, UserMixin):
@@ -120,15 +121,15 @@ def convert_image():
 
 @app.route('/vocab', methods=['GET'])
 def get_vocab():
-    query = Entry.query.order_by(func.random()).limit(3).all()
+    query = Vocab.query.order_by(func.random()).limit(3).all()
     entries = []
     n = 1
     for entry in query:
         mydict = {
             'id': entry.id,
-            'kanji': entry.kanji,
+            'kanji': entry.word,
             'reading': entry.reading,
-            'meaning': entry.gloss,
+            'meaning': entry.meaning,
             'audio_file': f'vocab{n}.mp3'
         }
         entries.append(mydict)
@@ -140,6 +141,7 @@ def get_vocab():
 @app.route('/flashcards', methods=['POST', 'GET'])
 def flashcards():
     return render_template('flashcards.html', logged_in=current_user.is_authenticated)
+
 
 @app.route('/set', methods=['POST', 'GET'])
 def view_set():
