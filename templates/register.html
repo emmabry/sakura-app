@@ -28,6 +28,9 @@
       <div class="form-group"> <br>
     {{ form.password.label }} <br> {{ form.password(size=20) }}
       </div>
+    <div class="form-group"> <br>
+    {{ form.jlpt_level.label }} <br> {{ form.jlpt_level() }}
+      </div>
             <br><br>
             {{ form.submit(class="form-control") }}
 </form>

@@ -49,6 +49,7 @@ class User(db.Model, UserMixin):
     password = Column(String)
     name = Column(String)
     email = Column(String)
+    jlpt_level = Column(String)
 
 
 class Set(db.Model):
@@ -80,7 +81,8 @@ def register():
             new_user = User(email=form.email.data,
                             password=hashed_password,
                             username=form.username.data,
-                            name=form.name.data)
+                            name=form.name.data,
+                            jlpt_level=form.jlpt_level.data)
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user)
@@ -128,7 +130,11 @@ def convert_image():
 
 @app.route('/vocab', methods=['GET'])
 def get_vocab():
-    query = Vocab.query.order_by(func.random()).limit(3).all()
+    if current_user.is_authenticated:
+        jlpt_level = current_user.jlpt_level
+    else:
+        jlpt_level = 'N5'
+    query = Vocab.query.filter_by(level=jlpt_level).order_by(func.random()).limit(3).all()
     entries = []
     n = 1
     for entry in query:
@@ -167,7 +173,7 @@ def show_set(set_id):
                 'meaning': vocab_entry.meaning,
                 'audio_file': f'vocab{n}.mp3'
             }
-            flashcards['data'][n] = mydict
+            flashcard_set['data'][n] = mydict
             get_speech(vocab_entry.reading, f'static/vocab{n}.mp3')
             n += 1
     return render_template('set.html', flashcards=flashcard_set, logged_in=current_user.is_authenticated)
