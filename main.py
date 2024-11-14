@@ -3,11 +3,10 @@ from login import LoginForm, RegistrationForm
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
 from flask import Flask, render_template, request, flash, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import Column, Integer, String, Text, func
+from sqlalchemy import Column, Integer, String, Text, func, ForeignKey
 from sqlalchemy.orm import DeclarativeBase
 from flask_sqlalchemy import SQLAlchemy
 import os
-import csv
 
 # App Config
 app = Flask(__name__)
@@ -50,6 +49,14 @@ class User(db.Model, UserMixin):
     password = Column(String)
     name = Column(String)
     email = Column(String)
+
+
+class Set(db.Model):
+    __tablename__ = 'flashcards'
+    id = Column(Integer, primary_key=True)
+    set = Column(String)
+    word_id = Column(Integer, ForeignKey('vocab.id'))
+    associated_user_id = Column(Integer)
 
 
 @app.route('/')
@@ -143,9 +150,27 @@ def flashcards():
     return render_template('flashcards.html', logged_in=current_user.is_authenticated)
 
 
-@app.route('/set', methods=['POST', 'GET'])
-def view_set():
-    return render_template('set.html', logged_in=current_user.is_authenticated)
+@app.route('/set/<set_id>', methods=['POST', 'GET'])
+def show_set(set_id):
+    query = db.session.execute(db.select(Set).where(Set.set == set_id).limit(20)).scalars().all()
+    flashcard_set = {'title': f"{set_id} Flashcards",
+                     'description': f'Here are the flashcards for JLPT level {set_id}.',
+                     'data': {}}
+    n = 1
+    for entry in query:
+        vocab_query = db.session.execute(db.select(Vocab).where(Vocab.id == entry.word_id)).scalars().all()
+        for vocab_entry in vocab_query:
+            mydict = {
+                'id': vocab_entry.id,
+                'kanji': vocab_entry.word,
+                'reading': vocab_entry.reading,
+                'meaning': vocab_entry.meaning,
+                'audio_file': f'vocab{n}.mp3'
+            }
+            flashcards['data'][n] = mydict
+            get_speech(vocab_entry.reading, f'static/vocab{n}.mp3')
+            n += 1
+    return render_template('set.html', flashcards=flashcard_set, logged_in=current_user.is_authenticated)
 
 
 if __name__ == '__main__':
