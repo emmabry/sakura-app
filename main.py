@@ -178,6 +178,10 @@ def show_set(set_id):
             n += 1
     return render_template('set.html', flashcards=flashcard_set, logged_in=current_user.is_authenticated)
 
+@app.route('/create', methods=['POST', 'GET'])
+def create_deck():
+    return render_template('create.html', logged_in=current_user.is_authenticated)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

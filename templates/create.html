@@ -1,0 +1,35 @@
+{% include 'base.html' %}
+
+<main>
+    <div class="container mt-5 mb-1">
+        <p class="col-lg-12 mx-auto mb-4">Welcome to the flashcard creation page. Add the kanji for the word, or if N/A leave blank and add the reading. If the word is in our database, the definition will generate when 'check database is clicked'. If it is not in our database, you can fill in the definition and add the word to the database.</p>
+        <div class="position-relative p-5 text-center text-muted bg-body rounded-5">
+            <h1 class="text-body-emphasis">Title: </h1>
+            <p class="col-lg-6 mx-auto mb-4">Description: </p>
+            <a href="#" class="btn my-button">Create Set</a>
+        </div>
+    </div>
+        <div class="container px-4 py-2">
+        <div class="row g-4 pt-2 pb-5">
+            <h2 class="fw-bold text-body-emphasis text-center">Flashcards</h2>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="d-flex flex-column h-100">
+                        <div class="card flash-front rounded-5 p-3 d-flex flex-column justify-content-center align-items-center h-100">
+                            <h3>Kanji (if applicable): </h3>
+                            <p>Reading: </p>
+                            <a href="#" class="btn white-button">Check database!</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex flex-column h-100">
+                        <div class="card flash-back rounded-5 p-3 d-flex flex-column justify-content-center align-items-center h-100">
+                            <h3>Definition</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
