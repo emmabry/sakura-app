@@ -1,0 +1,40 @@
+{% include 'base.html' %}
+
+<main>
+    <div class="container mt-5 mb-1">
+        <div class="position-relative p-5 text-center text-muted bg-body rounded-5">
+            <h1 class="text-body-emphasis">{{ flashcards['title'] }}</h1>
+            <p class="col-lg-6 mx-auto mb-4">{{ flashcards['description'] }}</p>
+            <a href="#" class="btn my-button">Practice</a>
+        </div>
+    </div>
+
+    <div class="container px-4 py-2">
+        <div class="row g-4 pt-2 pb-5">
+            <h2 class="fw-bold text-body-emphasis text-center">Flashcards</h2>
+            {% for n, card in flashcards['data'].items() %}
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="d-flex flex-column h-100">
+                        <div class="card flash-front rounded-5 p-3 d-flex flex-column justify-content-center align-items-center h-100">
+                            <h3>{{ card['kanji'] }}</h3>
+                            <p>{{ card['reading'] }}</p>
+                            <audio controls class="my-2">
+                <source src="{{ url_for('static', filename=card['audio_file']) }}" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex flex-column h-100">
+                        <div class="card flash-back rounded-5 p-3 d-flex flex-column justify-content-center align-items-center h-100">
+                            <h3>{{ card['meaning'] }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</main>

@@ -2,36 +2,60 @@
 
 <main>
     <div class="container mt-5 mb-1">
-        <p class="col-lg-12 mx-auto mb-4">Welcome to the flashcard creation page. Add the kanji for the word, or if N/A leave blank and add the reading. If the word is in our database, the definition will generate when 'check database' is clicked. If it is not in our database, you can fill in the definition and add the word to the database.</p>
+        <p class="col-lg-12 mx-auto mb-4 text-center">Welcome to the flashcard creation page. Add the kanji for the word, or if N/A leave blank and add the reading. If the word is in our database, the definition will generate when 'check database' is clicked. If it is not in our database, you can fill in the definition and add the word to the database.</p>
         <div class="position-relative p-5 text-center text-muted bg-body rounded-5">
-            <form>
-                <h1 class="text-body-emphasis"><input type="text" id="title" name="title" placeholder="Title"></h1>
-            <p class="col-lg-6 mx-auto mb-4"><input type="text" id="desc" name="desc" placeholder="Description"></p>
-            <a href="#" class="btn my-button">Create Set</a>
-        </div>
-    </div>
-        <div class="container px-4 py-2">
-        <div class="row g-4 pt-2 pb-5">
-            <h2 class="fw-bold text-body-emphasis text-center">Flashcards</h2>
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="d-flex flex-column h-100">
-                        <div class="card flash-front rounded-5 p-3 d-flex flex-column justify-content-center align-items-center h-100">
-                            <h3> <input type="text" id="kanji" name="kanji" placeholder="Kanji (if applicable)"> </h3>
-                            <p><input type="text" id="reading" name="reading" placeholder="Reading"></p>
-                            <a href="#" class="btn white-button">Check database!</a>
-                        </div>
+            <form id="flashcard-form" method="POST" action="{{ url_for('create_deck') }}">
+                <div class="mb-4">
+                    <p class="text-body-emphasis"><input type="text" id="title" name="title" placeholder="Set title" required></p>
+                    <p class="col-lg-6 mx-auto mb-4"><input type="text" id="desc" name="desc" placeholder="Set description" required></p>
+                </div>
+                <div id="flashcards-container">
+                    <div class="flashcard col-md-6 mx-auto rounded-5 p-3 mb-3" style="background-color: #ffc0cb;">
+                        <p><input type="text" class="flashcard-input" name="kanji[]" placeholder="Kanji (if applicable)"></p>
+                        <p><input type="text" class="flashcard-input" name="reading[]" placeholder="Reading" required></p>
+                        <p><button type="button" class="btn my-button check-database">Check Database</button></p>
+                        <p><input type="text" class="flashcard-input" name="definition[]" placeholder="Definition" required></p>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="d-flex flex-column h-100">
-                        <div class="card flash-back rounded-5 p-3 d-flex flex-column justify-content-center align-items-center h-100">
-                            <h3><input type="text" id="definition" name="definition" placeholder="Definition"></h3>
-                        </div>
-                    </div>
-                    </form>
-                </div>
-            </div>
+                <button type="button" class="btn my-button" id="add-flashcard">Add Flashcard</button>
+                <button type="submit" class="btn my-button">Create Set</button>
+            </form>
         </div>
     </div>
 </main>
+
+<script>
+    document.getElementById('add-flashcard').addEventListener('click', function() {
+        const flashcardsContainer = document.getElementById('flashcards-container');
+        const newFlashcard = document.createElement('div');
+        newFlashcard.classList.add('flashcard', 'rounded-5', 'p-3', 'mb-3', 'col-md-6', 'mx-auto');
+        newFlashcard.style.backgroundColor = '#ffc0cb';
+        newFlashcard.innerHTML = `
+            <p><input type="text" class="flashcard-input" name="kanji[]" placeholder="Kanji (if applicable)"></p>
+            <p><input type="text" class="flashcard-input" name="reading[]" placeholder="Reading" required></p>
+            <p><button type="button" class="btn my-button check-database">Check Database</button></p>
+            <p><input type="text" class="flashcard-input" name="definition[]" placeholder="Definition" required></p>
+        `;
+        flashcardsContainer.appendChild(newFlashcard);
+    });
+
+    document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('check-database')) {
+            const flashcard = event.target.closest('.flashcard');
+            const readingInput = flashcard.querySelector('input[name="reading[]"]');
+            const definitionInput = flashcard.querySelector('input[name="definition[]"]');
+            const reading = readingInput.value;
+
+            fetch(`/check_database?reading=${reading}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.definition) {
+                        definitionInput.value = data.definition;
+                    } else {
+                        definitionInput.value = 'n/a';
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    });
+</script>

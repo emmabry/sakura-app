@@ -58,6 +58,7 @@ class Set(db.Model):
     set = Column(String)
     word_id = Column(Integer, ForeignKey('vocab.id'))
     associated_user_id = Column(Integer)
+    description = Column(Text)
 
 
 @app.route('/')
@@ -178,9 +179,67 @@ def show_set(set_id):
             n += 1
     return render_template('set.html', flashcards=flashcard_set, logged_in=current_user.is_authenticated)
 
+@app.route('/user_set/<set_id>', methods=['POST', 'GET'])
+def get_user_set(set_id):
+    query = db.session.execute(db.select(Set).where(Set.set == set_id).limit(20)).scalars().all()
+    flashcard_set = {
+        'title': set_id,
+        'description': '',
+        'data': {}
+    }
+    n = 1
+    for entry in query:
+        if not flashcard_set['description']:
+            flashcard_set['description'] = entry.description
+        vocab_entry = Vocab.query.filter_by(id=entry.word_id).first()
+        if vocab_entry:
+            mydict = {
+                'id': vocab_entry.id,
+                'kanji': vocab_entry.word,
+                'reading': vocab_entry.reading,
+                'meaning': vocab_entry.meaning,
+                'audio_file': f'vocab{n}.mp3'
+            }
+            flashcard_set['data'][n] = mydict
+            get_speech(vocab_entry.reading, f'static/vocab{n}.mp3')
+            n += 1
+    return render_template('set.html', flashcards=flashcard_set, logged_in=current_user.is_authenticated)
+
 @app.route('/create', methods=['POST', 'GET'])
 def create_deck():
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = request.form.get('desc')
+        kanji_list = request.form.getlist('kanji[]')
+        reading_list = request.form.getlist('reading[]')
+        definition_list = request.form.getlist('definition[]')
+        # Get word from database if exists
+        for kanji, reading, definition in zip(kanji_list, reading_list, definition_list):
+            vocab_entry = Vocab.query.filter_by(reading=reading).first()
+            if vocab_entry:
+                word_id = vocab_entry.id
+                set_entry = Set(set=title, word_id=word_id, associated_user_id=current_user.id, description=description)
+                db.session.add(set_entry)
+            else:
+                new_vocab = Vocab(word=kanji, reading=reading, meaning=definition, level=current_user.jlpt_level)
+                db.session.add(new_vocab)
+                db.session.commit()
+                word_id = new_vocab.id
+                set_entry = Set(set=title, word_id=word_id, associated_user_id=current_user.id, description=description)
+                db.session.add(set_entry)
+            db.session.commit()
+        return redirect(url_for('get_user_set', set_id=title))
     return render_template('create.html', logged_in=current_user.is_authenticated)
+
+
+@app.route('/check_database', methods=['GET'])
+def check_database():
+    reading = request.args.get('reading')
+    vocab_entry = Vocab.query.filter_by(reading=reading).first()
+    if vocab_entry:
+        return {'definition': vocab_entry.meaning}
+    else:
+        return {'definition': None}
 
 
 if __name__ == '__main__':
