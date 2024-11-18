@@ -1,7 +1,7 @@
 {% include 'base.html' %}
-
 <main>
     <div class="container mt-5 mb-1">
+        {% if current_user.is_authenticated %}
         <p class="col-lg-12 mx-auto mb-4 text-center">Welcome to the flashcard creation page. Add the kanji for the word, or if N/A leave blank and add the reading. If the word is in our database, the definition will generate when 'check database' is clicked. If it is not in our database, you can fill in the definition and add the word to the database.</p>
         <div class="position-relative p-5 text-center text-muted bg-body rounded-5">
             <form id="flashcard-form" method="POST" action="{{ url_for('create_deck') }}">
@@ -21,9 +21,12 @@
                 <button type="submit" class="btn my-button">Create Set</button>
             </form>
         </div>
+            {% else %}
+            <p class="col-lg-6 mx-auto pb-0"> Please <a href="{{ url_for('login') }}">log in</a> to create a set.</p>
     </div>
 </main>
 
+{% endif %}
 <script>
     document.getElementById('add-flashcard').addEventListener('click', function() {
         const flashcardsContainer = document.getElementById('flashcards-container');
