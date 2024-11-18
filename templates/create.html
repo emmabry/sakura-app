@@ -2,10 +2,11 @@
 
 <main>
     <div class="container mt-5 mb-1">
-        <p class="col-lg-12 mx-auto mb-4">Welcome to the flashcard creation page. Add the kanji for the word, or if N/A leave blank and add the reading. If the word is in our database, the definition will generate when 'check database is clicked'. If it is not in our database, you can fill in the definition and add the word to the database.</p>
+        <p class="col-lg-12 mx-auto mb-4">Welcome to the flashcard creation page. Add the kanji for the word, or if N/A leave blank and add the reading. If the word is in our database, the definition will generate when 'check database' is clicked. If it is not in our database, you can fill in the definition and add the word to the database.</p>
         <div class="position-relative p-5 text-center text-muted bg-body rounded-5">
-            <h1 class="text-body-emphasis">Title: </h1>
-            <p class="col-lg-6 mx-auto mb-4">Description: </p>
+            <form>
+                <h1 class="text-body-emphasis"><input type="text" id="title" name="title" placeholder="Title"></h1>
+            <p class="col-lg-6 mx-auto mb-4"><input type="text" id="desc" name="desc" placeholder="Description"></p>
             <a href="#" class="btn my-button">Create Set</a>
         </div>
     </div>
@@ -16,8 +17,8 @@
                 <div class="col-md-6">
                     <div class="d-flex flex-column h-100">
                         <div class="card flash-front rounded-5 p-3 d-flex flex-column justify-content-center align-items-center h-100">
-                            <h3>Kanji (if applicable): </h3>
-                            <p>Reading: </p>
+                            <h3> <input type="text" id="kanji" name="kanji" placeholder="Kanji (if applicable)"> </h3>
+                            <p><input type="text" id="reading" name="reading" placeholder="Reading"></p>
                             <a href="#" class="btn white-button">Check database!</a>
                         </div>
                     </div>
@@ -25,9 +26,10 @@
                 <div class="col-md-6">
                     <div class="d-flex flex-column h-100">
                         <div class="card flash-back rounded-5 p-3 d-flex flex-column justify-content-center align-items-center h-100">
-                            <h3>Definition</h3>
+                            <h3><input type="text" id="definition" name="definition" placeholder="Definition"></h3>
                         </div>
                     </div>
+                    </form>
                 </div>
             </div>
         </div>
