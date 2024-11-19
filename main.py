@@ -234,7 +234,6 @@ def create_deck():
             flashcard = Flashcard(set_id=set_entry.id, word_id=word_id)
             db.session.add(flashcard)
             db.session.commit()
-            print(set_entry.id)
         return redirect(url_for('show_set', set_id=set_entry.id))
     return render_template('create.html', logged_in=current_user.is_authenticated)
 
