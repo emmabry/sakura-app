@@ -53,7 +53,7 @@
         <li class="nav-item"><a href="{{ url_for('get_vocab') }}" class="nav-link">Vocab</a></li>
         <li class="nav-item"><a href="{{ url_for('flashcards') }}" class="nav-link">Flashcards</a></li>
           {%  if logged_in == True %}
-        <li class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link active">Logout</a></li>
+        <li class="nav-item"><a href="{{ url_for('account') }}" class="nav-link active">Account</a></li>
           {% else %}
           <li class="nav-item"><a href="{{ url_for('login') }}" class="nav-link active">Login</a></li>
           {% endif %}

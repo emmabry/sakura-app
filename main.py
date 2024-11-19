@@ -103,7 +103,7 @@ def login():
         user = query.scalar()
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
-            return render_template('loggedin.html', user=user, logged_in=current_user.is_authenticated)
+            return redirect(url_for('account', logged_in=current_user.is_authenticated))
         elif not user:
             flash('User does not exist.')
             return redirect(url_for('login'))
@@ -118,6 +118,9 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+@app.route('/account', methods=['POST', 'GET'])
+def account():
+    return render_template('account.html', logged_in=current_user.is_authenticated)
 
 @app.route('/upload', methods=['POST', 'GET'])
 def convert_image():
