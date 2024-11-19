@@ -52,14 +52,18 @@ class User(db.Model, UserMixin):
     jlpt_level = Column(String)
 
 
-class Set(db.Model):
-    __tablename__ = 'flashcards'
+class FlashcardSet(db.Model):
+    __tablename__ = 'FlashcardSet'
     id = Column(Integer, primary_key=True)
-    set = Column(String)
-    word_id = Column(Integer, ForeignKey('vocab.id'))
-    associated_user_id = Column(Integer)
+    title = Column(String)
     description = Column(Text)
+    associated_user_id = Column(Integer)
 
+class Flashcard(db.Model):
+    __tablename__ = 'Flashcard'
+    id = Column(Integer, primary_key=True)
+    word_id = Column(Integer, ForeignKey('vocab.id'))
+    set_id = Column(Integer, ForeignKey('FlashcardSet.id'))
 
 @app.route('/')
 def index():
@@ -159,24 +163,24 @@ def flashcards():
 
 @app.route('/set/<set_id>', methods=['POST', 'GET'])
 def show_set(set_id):
-    query = db.session.execute(db.select(Set).where(Set.set == set_id).limit(20)).scalars().all()
-    flashcard_set = {'title': f"{set_id} Flashcards",
-                     'description': f'Here are the flashcards for JLPT level {set_id}.',
+    set = db.session.execute(db.select(FlashcardSet).where(FlashcardSet.id == set_id)).scalar()
+    flashcard_set = {'title': set.title,
+                     'description': set.description,
                      'data': {}}
     n = 1
-    for entry in query:
-        vocab_query = db.session.execute(db.select(Vocab).where(Vocab.id == entry.word_id)).scalars().all()
-        for vocab_entry in vocab_query:
-            mydict = {
-                'id': vocab_entry.id,
-                'kanji': vocab_entry.word,
-                'reading': vocab_entry.reading,
-                'meaning': vocab_entry.meaning,
-                'audio_file': f'vocab{n}.mp3'
-            }
-            flashcard_set['data'][n] = mydict
-            get_speech(vocab_entry.reading, f'static/vocab{n}.mp3')
-            n += 1
+    cards = db.session.execute(db.select(Flashcard).where(Flashcard.set_id == set.id).limit(20)).scalars().all()
+    for card in cards:
+        word = db.session.execute(db.select(Vocab).where(Vocab.id == card.word_id)).scalar()
+        word_data = {
+            'id': word.id,
+            'kanji': word.word,
+            'reading': word.reading,
+            'meaning': word.meaning,
+            'audio_file': f'vocab{n}.mp3'
+        }
+        flashcard_set['data'][n] = word_data
+        get_speech(word.reading, f'static/vocab{n}.mp3')
+        n += 1
     return render_template('set.html', flashcards=flashcard_set, logged_in=current_user.is_authenticated)
 
 @app.route('/user_set/<set_id>', methods=['POST', 'GET'])
@@ -213,22 +217,25 @@ def create_deck():
         kanji_list = request.form.getlist('kanji[]')
         reading_list = request.form.getlist('reading[]')
         definition_list = request.form.getlist('definition[]')
+        # Create FlashcardSet
+        set_entry = FlashcardSet(title=title, description=description, associated_user_id=current_user.id)
+        db.session.add(set_entry)
+        db.session.commit()
         # Get word from database if exists
         for kanji, reading, definition in zip(kanji_list, reading_list, definition_list):
             vocab_entry = Vocab.query.filter_by(reading=reading).first()
             if vocab_entry:
                 word_id = vocab_entry.id
-                set_entry = Set(set=title, word_id=word_id, associated_user_id=current_user.id, description=description)
-                db.session.add(set_entry)
             else:
                 new_vocab = Vocab(word=kanji, reading=reading, meaning=definition, level=current_user.jlpt_level)
                 db.session.add(new_vocab)
                 db.session.commit()
                 word_id = new_vocab.id
-                set_entry = Set(set=title, word_id=word_id, associated_user_id=current_user.id, description=description)
-                db.session.add(set_entry)
+            flashcard = Flashcard(set_id=set_entry.id, word_id=word_id)
+            db.session.add(flashcard)
             db.session.commit()
-        return redirect(url_for('get_user_set', set_id=title))
+            print(set_entry.id)
+        return redirect(url_for('show_set', set_id=set_entry.id))
     return render_template('create.html', logged_in=current_user.is_authenticated)
 
 
@@ -244,3 +251,4 @@ def check_database():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
