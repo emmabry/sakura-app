@@ -8,6 +8,7 @@ from sqlalchemy.orm import DeclarativeBase
 from flask_sqlalchemy import SQLAlchemy
 import os
 
+
 # App Config
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
@@ -32,7 +33,6 @@ class Base(DeclarativeBase):
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
-
 class Vocab(db.Model):
     __tablename__ = 'vocab'
     id = Column(Integer, primary_key=True)
@@ -40,7 +40,6 @@ class Vocab(db.Model):
     reading = Column(String)
     meaning = Column(Text)
     level = Column(String)
-
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
@@ -50,7 +49,6 @@ class User(db.Model, UserMixin):
     name = Column(String)
     email = Column(String)
     jlpt_level = Column(String)
-
 
 class FlashcardSet(db.Model):
     __tablename__ = 'FlashcardSet'
@@ -91,7 +89,7 @@ def register():
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user)
-            return render_template('loggedin.html', user=new_user, logged_in=current_user.is_authenticated)
+            return render_template('account.html', logged_in=current_user.is_authenticated)
     return render_template('register.html', form=form, logged_in=current_user.is_authenticated)
 
 
@@ -166,12 +164,12 @@ def flashcards():
 
 @app.route('/set/<set_id>', methods=['POST', 'GET'])
 def show_set(set_id):
-    set = db.session.execute(db.select(FlashcardSet).where(FlashcardSet.id == set_id)).scalar()
-    flashcard_set = {'title': set.title,
-                     'description': set.description,
+    card_set = db.session.execute(db.select(FlashcardSet).where(FlashcardSet.id == set_id)).scalar()
+    flashcard_set = {'title': card_set.title,
+                     'description': card_set.description,
                      'data': {}}
     n = 1
-    cards = db.session.execute(db.select(Flashcard).where(Flashcard.set_id == set.id).limit(20)).scalars().all()
+    cards = db.session.execute(db.select(Flashcard).where(Flashcard.set_id == card_set.id).limit(20)).scalars().all()
     for card in cards:
         word = db.session.execute(db.select(Vocab).where(Vocab.id == card.word_id)).scalar()
         word_data = {
@@ -227,4 +225,3 @@ def check_database():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
