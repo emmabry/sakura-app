@@ -183,32 +183,6 @@ def show_set(set_id):
         n += 1
     return render_template('set.html', flashcards=flashcard_set, logged_in=current_user.is_authenticated)
 
-@app.route('/user_set/<set_id>', methods=['POST', 'GET'])
-def get_user_set(set_id):
-    query = db.session.execute(db.select(Set).where(Set.set == set_id).limit(20)).scalars().all()
-    flashcard_set = {
-        'title': set_id,
-        'description': '',
-        'data': {}
-    }
-    n = 1
-    for entry in query:
-        if not flashcard_set['description']:
-            flashcard_set['description'] = entry.description
-        vocab_entry = Vocab.query.filter_by(id=entry.word_id).first()
-        if vocab_entry:
-            mydict = {
-                'id': vocab_entry.id,
-                'kanji': vocab_entry.word,
-                'reading': vocab_entry.reading,
-                'meaning': vocab_entry.meaning,
-                'audio_file': f'vocab{n}.mp3'
-            }
-            flashcard_set['data'][n] = mydict
-            get_speech(vocab_entry.reading, f'static/vocab{n}.mp3')
-            n += 1
-    return render_template('set.html', flashcards=flashcard_set, logged_in=current_user.is_authenticated)
-
 @app.route('/create', methods=['POST', 'GET'])
 def create_deck():
     if request.method == 'POST':
