@@ -1,29 +1,36 @@
 {% include 'base.html' %}
-    <main>
-        <div class="container my-5">
+<main>
+    <div class="container my-5">
         <div class="position-relative p-5 text-center text-muted bg-body rounded-5">
-        {% if current_user.is_authenticated %}
-    <p class="col-lg-6 mx-auto pb-0"> Showing words for your selected JLPT level: {{ current_user.jlpt_level }}</p>
-     {% else %}
-            <p class="col-lg-6 mx-auto pb-0"> Please <a href="{{ url_for('login') }}">log in</a> to see words tailored by your JLPT level. Showing N5 by default.</p>
-    {% endif %}
+            {% if current_user.is_authenticated %}
+                <p class="col-lg-6 mx-auto pb-0"> Showing words for your selected JLPT level: {{ current_user.jlpt_level }}</p>
+            {% else %}
+                <p class="col-lg-6 mx-auto pb-0"> Please <a href="{{ url_for('login') }}">log in</a> to see words tailored by your JLPT level. Showing N5 by default.</p>
+            {% endif %}
         </div>
         <div class="position-relative px-5 pb-5 pt-1 text-center text-muted bg-body rounded-5">
-            {% for word in vocab_list %}
-            {% if word['kanji'] %}
-        <h1 class="text-body-emphasis mt-3">{{ word['kanji'] }}</h1>
-             <p class="col-lg-6 mx-auto mb-4">{{ word['reading'] }}</p>
-            {% else %}
-            <h1 class="text-body-emphasis mt-3">{{ word['reading'] }}</h1>
-            {% endif %}
-            <p class="col-lg-6 mx-auto">{{ word['meaning'] }}</p>
-            <audio controls class="my-2">
-                <source src="{{ url_for('static', filename=word['audio_file']) }}" type="audio/mpeg">
-                Your browser does not support the audio element.
-            </audio>
-            {% endfor %}
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% for word in vocab_list %}
+                <div class="col">
+                    <div class="d-flex flex-column h-100">
+                        <div class="card rounded-5 p-3 d-flex flex-column justify-content-center align-items-center h-100" style="background-color: #ffe6e6;">
+                            {% if word['kanji'] %}
+                                <h1 class="text-body-emphasis mt-3">{{ word['kanji'] }}</h1>
+                                <p class="col-lg-6 mx-auto mb-4">{{ word['reading'] }}</p>
+                            {% else %}
+                                <h1 class="text-body-emphasis mt-3">{{ word['reading'] }}</h1>
+                            {% endif %}
+                            <p class="col-lg-6 mx-auto">{{ word['meaning'] }}</p>
+                            <audio controls class="my-2">
+                                <source src="{{ url_for('static', filename=word['audio_file']) }}" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    </div>
+                <a href="#" class="my-button btn mt-3">Save</a>
+                </div>
+                {% endfor %}
+            </div>
         </div>
-        </div>
-    </main>
-</body>
-</html>
+    </div>
+</main>

@@ -10,7 +10,8 @@
                     <p class="col-lg-6 mx-auto mb-4"><input type="text" id="desc" name="desc" placeholder="Set description" required></p>
                 </div>
                 <div id="flashcards-container">
-                    <div class="flashcard col-md-6 mx-auto rounded-5 p-3 mb-3" style="background-color: #ffc0cb;">
+                    <div class="flashcard col-md-6 mx-auto rounded-5 p-3 mb-3 position-relative" style="background-color: #ffc0cb;">
+                        <button type="button" class="btn-close position-absolute top-1 start-0 m-2 px-2 py-1" aria-label="Close"></button>
                         <p><input type="text" class="flashcard-input" name="kanji[]" placeholder="Kanji (if applicable)"></p>
                         <p><input type="text" class="flashcard-input" name="reading[]" placeholder="Reading" required></p>
                         <p><button type="button" class="btn my-button check-database">Check Database</button></p>
@@ -31,9 +32,10 @@
     document.getElementById('add-flashcard').addEventListener('click', function() {
         const flashcardsContainer = document.getElementById('flashcards-container');
         const newFlashcard = document.createElement('div');
-        newFlashcard.classList.add('flashcard', 'rounded-5', 'p-3', 'mb-3', 'col-md-6', 'mx-auto');
+        newFlashcard.classList.add('flashcard', 'rounded-5', 'p-3', 'mb-3', 'col-md-6', 'mx-auto', 'position-relative');
         newFlashcard.style.backgroundColor = '#ffc0cb';
         newFlashcard.innerHTML = `
+            <button type="button" class="btn-close position-absolute top-1 start-0 m-2 px-2 py-1" aria-label="Close"></button>
             <p><input type="text" class="flashcard-input" name="kanji[]" placeholder="Kanji (if applicable)"></p>
             <p><input type="text" class="flashcard-input" name="reading[]" placeholder="Reading" required></p>
             <p><button type="button" class="btn my-button check-database">Check Database</button></p>
@@ -59,6 +61,9 @@
                     }
                 })
                 .catch(error => console.error('Error:', error));
+        } else if (event.target.classList.contains('btn-close')) {
+            const flashcard = event.target.closest('.flashcard');
+            flashcard.remove();
         }
     });
 </script>

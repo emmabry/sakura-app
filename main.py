@@ -233,7 +233,10 @@ def check_database():
 
 @app.route('/view_sets', methods=['GET'])
 def view_sets():
-    sets = FlashcardSet.query.filter_by(associated_user_id=current_user.id).all()
+    if current_user.is_authenticated:
+        sets = FlashcardSet.query.filter_by(associated_user_id=current_user.id).all()
+    else:
+        sets = []
     return render_template('viewsets.html', sets=sets, logged_in=current_user.is_authenticated)
 
 

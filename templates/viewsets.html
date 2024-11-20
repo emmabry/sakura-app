@@ -1,6 +1,7 @@
 {% include 'base.html' %}
 
 <div class="container px-4 py-2">
+{% if current_user.is_authenticated %}
     <div class="row row-cols-1 row-cols-md-1 align-items-md-center g-5 py-5">
       <div class="col d-flex flex-column align-items-md-center gap-2">
         <h2 class="fw-bold text-body-emphasis">{{ current_user.name }}'s Flashcard Sets</h2>
@@ -20,4 +21,7 @@
       </div>
     </div>
   </div>
+{% else %}
+<p class="col-lg-6 mx-auto pb-0"> Please <a href="{{ url_for('login') }}">log in</a> to view your sets.</p>
+{% endif %}
 </div>
