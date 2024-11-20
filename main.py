@@ -33,6 +33,7 @@ class Base(DeclarativeBase):
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
+
 class Vocab(db.Model):
     __tablename__ = 'vocab'
     id = Column(Integer, primary_key=True)
@@ -40,6 +41,7 @@ class Vocab(db.Model):
     reading = Column(String)
     meaning = Column(Text)
     level = Column(String)
+
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
@@ -50,6 +52,7 @@ class User(db.Model, UserMixin):
     email = Column(String)
     jlpt_level = Column(String)
 
+
 class FlashcardSet(db.Model):
     __tablename__ = 'FlashcardSet'
     id = Column(Integer, primary_key=True)
@@ -57,11 +60,13 @@ class FlashcardSet(db.Model):
     description = Column(Text)
     associated_user_id = Column(Integer)
 
+
 class Flashcard(db.Model):
     __tablename__ = 'Flashcard'
     id = Column(Integer, primary_key=True)
     word_id = Column(Integer, ForeignKey('vocab.id'))
     set_id = Column(Integer, ForeignKey('FlashcardSet.id'))
+
 
 @app.route('/')
 def index():
@@ -116,9 +121,11 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+
 @app.route('/account', methods=['POST', 'GET'])
 def account():
     return render_template('account.html', logged_in=current_user.is_authenticated)
+
 
 @app.route('/upload', methods=['POST', 'GET'])
 def convert_image():
@@ -184,6 +191,7 @@ def show_set(set_id):
         n += 1
     return render_template('set.html', flashcards=flashcard_set, logged_in=current_user.is_authenticated)
 
+
 @app.route('/create', methods=['POST', 'GET'])
 def create_deck():
     if request.method == 'POST':
@@ -221,6 +229,12 @@ def check_database():
         return {'definition': vocab_entry.meaning}
     else:
         return {'definition': None}
+
+
+@app.route('/view_sets', methods=['GET'])
+def view_sets():
+    sets = FlashcardSet.query.filter_by(associated_user_id=current_user.id).all()
+    return render_template('viewsets.html', sets=sets, logged_in=current_user.is_authenticated)
 
 
 if __name__ == '__main__':
