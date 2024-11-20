@@ -172,8 +172,10 @@ def flashcards():
 @app.route('/set/<set_id>', methods=['POST', 'GET'])
 def show_set(set_id):
     card_set = db.session.execute(db.select(FlashcardSet).where(FlashcardSet.id == set_id)).scalar()
-    flashcard_set = {'title': card_set.title,
+    flashcard_set = {'set_id': set_id,
+                     'title': card_set.title,
                      'description': card_set.description,
+                     'user_id': card_set.associated_user_id,
                      'data': {}}
     n = 1
     cards = db.session.execute(db.select(Flashcard).where(Flashcard.set_id == card_set.id).limit(20)).scalars().all()
@@ -238,6 +240,14 @@ def view_sets():
     else:
         sets = []
     return render_template('viewsets.html', sets=sets, logged_in=current_user.is_authenticated)
+
+
+@app.route('/delete_set/<set_id>', methods=['POST', 'GET'])
+def delete_set(set_id):
+    set_entry = FlashcardSet.query.filter_by(id=set_id).first()
+    db.session.delete(set_entry)
+    db.session.commit()
+    return redirect(url_for('view_sets'))
 
 
 if __name__ == '__main__':
