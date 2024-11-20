@@ -3,6 +3,11 @@
 <main>
     <div class="container mt-5 mb-1">
         <div class="position-relative p-5 text-center text-muted bg-body rounded-5">
+        {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <p style="color: red;"> {{ messages[0] }}</p>
+  {% endif %}
+{% endwith %}
             <h1 class="text-body-emphasis">{{ flashcards['title'] }}</h1>
             <p class="col-lg-6 mx-auto mb-4">{{ flashcards['description'] }}</p>
             <a href="#" class="btn my-button">Practice</a>

@@ -8,7 +8,6 @@ from sqlalchemy.orm import DeclarativeBase
 from flask_sqlalchemy import SQLAlchemy
 import os
 
-
 # App Config
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
@@ -145,8 +144,10 @@ def convert_image():
 def get_vocab():
     if current_user.is_authenticated:
         jlpt_level = current_user.jlpt_level
+        user_sets = FlashcardSet.query.filter_by(associated_user_id=current_user.id).all()
     else:
         jlpt_level = 'N5'
+        user_sets = []
     query = Vocab.query.filter_by(level=jlpt_level).order_by(func.random()).limit(3).all()
     entries = []
     n = 1
@@ -161,8 +162,18 @@ def get_vocab():
         entries.append(mydict)
         get_speech(entry.reading, f'static/vocab{n}.mp3')
         n += 1
-    return render_template('vocab.html', vocab_list=entries, logged_in=current_user.is_authenticated)
+    return render_template('vocab.html', vocab_list=entries, sets=user_sets, logged_in=current_user.is_authenticated)
 
+@app.route('/add_vocab_to_set', methods=['POST'])
+def add_vocab_to_set():
+    if current_user.is_authenticated:
+        vocab_id = request.form.get('vocab_id')
+        set_id = request.form.get('set_id')
+        flashcard = Flashcard(set_id=set_id, word_id=vocab_id)
+        db.session.add(flashcard)
+        db.session.commit()
+        flash('Vocab added to set successfully!')
+    return redirect(url_for('show_set', set_id=set_id))
 
 @app.route('/flashcards', methods=['POST', 'GET'])
 def flashcards():

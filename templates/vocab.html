@@ -25,12 +25,39 @@
                                 <source src="{{ url_for('static', filename=word['audio_file']) }}" type="audio/mpeg">
                                 Your browser does not support the audio element.
                             </audio>
+                            {% if current_user.is_authenticated %}
+                            <a href="#" class="my-button btn mt-3" onclick="toggleDropdown({{ word['id'] }})">Add</a>
+                            <div id="dropdown-{{ word['id'] }}" style="display: none;">
+                                <form method="POST" action="{{ url_for('add_vocab_to_set') }}">
+                                    <input type="hidden" name="vocab_id" value="{{ word['id'] }}">
+                                    <div class="mb-3">
+                                        <label for="setSelect{{ word['id'] }}" class="form-label">Select Set</label>
+                                        <select class="form-select" id="setSelect{{ word['id'] }}" name="set_id" required>
+                                            {% for set in sets %}
+                                                <option value="{{ set.id }}">{{ set.title }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn my-button">Confirm</button>
+                                </form>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
-                <a href="#" class="my-button btn mt-3">Save</a>
                 </div>
                 {% endfor %}
             </div>
         </div>
     </div>
 </main>
+
+<script>
+function toggleDropdown(id) {
+    var dropdown = document.getElementById('dropdown-' + id);
+    if (dropdown.style.display === 'none') {
+        dropdown.style.display = 'block';
+    } else {
+        dropdown.style.display = 'none';
+    }
+}
+</script>
