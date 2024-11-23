@@ -8,6 +8,7 @@ from sqlalchemy.orm import DeclarativeBase
 from flask_sqlalchemy import SQLAlchemy
 import os
 
+
 # App Config
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
@@ -123,6 +124,13 @@ def logout():
 
 @app.route('/account', methods=['POST', 'GET'])
 def account():
+    if request.method == 'POST':
+        print(request.form.get('jlpt'))
+        current_user.jlpt_level = request.form.get('jlpt')
+        print(current_user.jlpt_level)
+        db.session.commit()
+        flash('JLPT Level updated successfully!')
+        return redirect(url_for('account'))
     return render_template('account.html', logged_in=current_user.is_authenticated)
 
 
