@@ -8,7 +8,6 @@ from sqlalchemy.orm import DeclarativeBase
 from flask_sqlalchemy import SQLAlchemy
 import os
 
-
 # App Config
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
@@ -225,19 +224,29 @@ def create_deck():
         set_entry = FlashcardSet(title=title, description=description, associated_user_id=current_user.id)
         db.session.add(set_entry)
         db.session.commit()
+        # Batch insertion
+        new_vocab_entries = []
+        new_flashcards = []
         # Get word from database if exists
         for kanji, reading, definition in zip(kanji_list, reading_list, definition_list):
-            vocab_entry = Vocab.query.filter_by(reading=reading).first()
-            if vocab_entry:
-                word_id = vocab_entry.id
-            else:
-                new_vocab = Vocab(word=kanji, reading=reading, meaning=definition, level=current_user.jlpt_level)
-                db.session.add(new_vocab)
-                db.session.commit()
-                word_id = new_vocab.id
-            flashcard = Flashcard(set_id=set_entry.id, word_id=word_id)
-            db.session.add(flashcard)
-            db.session.commit()
+            if reading != '':
+                vocab_entry = Vocab.query.filter_by(reading=reading).first()
+                if vocab_entry:
+                    word_id = vocab_entry.id
+                else:
+                    new_vocab = Vocab(word=kanji, reading=reading, meaning=definition, level=current_user.jlpt_level)
+                    new_vocab_entries.append(new_vocab)
+                    db.session.add(new_vocab)
+                    db.session.flush()
+                    word_id = new_vocab.id
+
+                flashcard = Flashcard(set_id=set_entry.id, word_id=word_id)
+                new_flashcards.append(flashcard)
+        # Batch insert flashcards
+        db.session.bulk_save_objects(new_vocab_entries)
+        db.session.commit()
+        db.session.bulk_save_objects(new_flashcards)
+        db.session.commit()
         return redirect(url_for('show_set', set_id=set_entry.id))
     return render_template('create.html', logged_in=current_user.is_authenticated)
 

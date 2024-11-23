@@ -49,21 +49,27 @@
             const flashcard = event.target.closest('.flashcard');
             const readingInput = flashcard.querySelector('input[name="reading[]"]');
             const definitionInput = flashcard.querySelector('input[name="definition[]"]');
-            const reading = readingInput.value;
+        const reading = readingInput.value;
 
-            fetch(`/check_database?reading=${reading}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.definition) {
-                        definitionInput.value = data.definition;
-                    } else {
-                        definitionInput.value = 'n/a';
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        } else if (event.target.classList.contains('btn-close')) {
-            const flashcard = event.target.closest('.flashcard');
-            flashcard.remove();
+if (reading) {
+    fetch(`/check_database?reading=${reading}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.definition) {
+                definitionInput.value = data.definition;
+            } else {
+                definitionInput.value = 'n/a';
+            }
+        })
+        .catch(error => console.error('Error:', error));
+} else {
+    console.log('Reading is empty, not checking the database.');
+}
+
+if (event.target.classList.contains('btn-close')) {
+    const flashcard = event.target.closest('.flashcard');
+    flashcard.remove();
+}
         }
     });
 </script>
