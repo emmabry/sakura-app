@@ -124,14 +124,29 @@ def logout():
 @app.route('/account', methods=['POST', 'GET'])
 def account():
     if request.method == 'POST':
-        print(request.form.get('jlpt'))
-        current_user.jlpt_level = request.form.get('jlpt')
         print(current_user.jlpt_level)
-        db.session.commit()
-        flash('JLPT Level updated successfully!')
+        print(request.form.get('jlpt'))
+        if current_user.jlpt_level != request.form.get('jlpt'):
+            current_user.jlpt_level = request.form.get('jlpt')
+            flash('JLPT Level updated successfully!')
+            db.session.commit()
+        else:
+            flash('JLPT Level is the same!')
         return redirect(url_for('account'))
     return render_template('account.html', logged_in=current_user.is_authenticated)
 
+@app.route('/editname', methods=['POST', 'GET'])
+def editname():
+    if request.method == 'POST':
+        print(current_user.name)
+        print(request.form.get('name'))
+        if current_user.name != request.form.get('name'):
+            current_user.name = request.form.get('name')
+            db.session.commit()
+            flash('Name updated successfully!')
+        else:
+            flash('That is already your name!')
+        return redirect(url_for('account'))
 
 @app.route('/upload', methods=['POST', 'GET'])
 def convert_image():
@@ -269,11 +284,72 @@ def view_sets():
         sets = []
     return render_template('viewsets.html', sets=sets, logged_in=current_user.is_authenticated)
 
+@app.route('/edit_set/<set_id>', methods=['POST', 'GET'])
+def edit_set(set_id):
+    if request.method == 'GET':
+        card_set = db.session.execute(db.select(FlashcardSet).where(FlashcardSet.id == set_id)).scalar()
+        flashcard_set = {'set_id': set_id,
+                         'title': card_set.title,
+                         'description': card_set.description,
+                         'user_id': card_set.associated_user_id,
+                         'data': {}}
+        n = 1
+        cards = db.session.execute(db.select(Flashcard).where(Flashcard.set_id == card_set.id).limit(20)).scalars().all()
+        for card in cards:
+            word = db.session.execute(db.select(Vocab).where(Vocab.id == card.word_id)).scalar()
+            word_data = {
+                'id': word.id,
+                'kanji': word.word,
+                'reading': word.reading,
+                'meaning': word.meaning
+            }
+            flashcard_set['data'][n] = word_data
+            n += 1
+    if request.method == 'POST':
+        card_set = db.session.execute(db.select(FlashcardSet).where(FlashcardSet.id == set_id)).scalar()
+        card_set.title = request.form.get('title')
+        card_set.description = request.form.get('desc')
+        kanji_list = request.form.getlist('kanji[]')
+        reading_list = request.form.getlist('reading[]')
+        definition_list = request.form.getlist('definition[]')
+        # Wipe flashcard list and re-add with all the words above
+        db.session.query(Flashcard).filter(Flashcard.set_id == set_id).delete()
+        db.session.commit()
+
+        new_vocab_entries = []
+        new_flashcards = []
+        # Get word from database if exists
+        for kanji, reading, definition in zip(kanji_list, reading_list, definition_list):
+            if reading != '':
+                vocab_entry = Vocab.query.filter_by(reading=reading).first()
+                if vocab_entry:
+                    word_id = vocab_entry.id
+                else:
+                    new_vocab = Vocab(word=kanji, reading=reading, meaning=definition, level=current_user.jlpt_level)
+                    new_vocab_entries.append(new_vocab)
+                    db.session.add(new_vocab)
+                    db.session.flush()
+                    word_id = new_vocab.id
+
+                flashcard = Flashcard(set_id=card_set.id, word_id=word_id)
+                new_flashcards.append(flashcard)
+        # Batch insert flashcards
+        db.session.bulk_save_objects(new_vocab_entries)
+        db.session.commit()
+        db.session.bulk_save_objects(new_flashcards)
+        db.session.commit()
+        flash('Set updated successfully!')
+        return redirect(url_for('show_set', set_id=card_set.id))
+    return render_template('edit.html', flashcards=flashcard_set, logged_in=current_user.is_authenticated)
+
 
 @app.route('/delete_set/<set_id>', methods=['POST', 'GET'])
 def delete_set(set_id):
     set_entry = FlashcardSet.query.filter_by(id=set_id).first()
     db.session.delete(set_entry)
+    associated_flashcards = Flashcard.query.filter_by(set_id=set_id).all()
+    for flashcard in associated_flashcards:
+        db.session.delete(flashcard)
     db.session.commit()
     return redirect(url_for('view_sets'))
 
