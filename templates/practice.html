@@ -1,0 +1,52 @@
+{% include 'base.html' %}
+
+<main>
+    <div class="container mt-5 mb-1">
+        <div class="position-relative p-5 text-center text-muted bg-body rounded-5">
+            <h1 class="text-body-emphasis">Practicing: {{ flashcards['title'] }}</h1>
+            <p class="col-lg-6 mx-auto mb-1">Click the card to view the other side.</p>
+        </div>
+    </div>
+    <div class="container px-4 py-2 mt-1">
+        <div class="row justify-content-center pt-2 pb-5">
+            <div class="col-md-8">
+                <div class="d-flex flex-column h-100">
+                    <div class="to-flip card flash-front rounded-5 p-5 d-flex flex-column justify-content-center align-items-center h-100">
+                        <h3 class="display-4">{{ flashcards['data'][1]['kanji'] }}</h3>
+                        <p class="lead">{{ flashcards['data'][1]['reading'] }}</p>
+                        <audio controls class="my-2">
+                            <source src="{{ url_for('static', filename=flashcards['data'][1]['audio_file']) }}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center align-items-center px-2 py-2">
+                <a href="#" class="btn know-button m-2">Not sure</a>
+                <a href="#" class="btn no-button m-2">I know it!</a>
+                    </div>
+            </div>
+        </div>
+    </div>
+</main>
+    <script>
+    // Flip Card
+document.querySelectorAll('.to-flip').forEach(card => {
+    card.addEventListener('click', () => {
+        const cardContainer = card.closest('.card-container');
+        if (cardContainer.classList.contains('flipped')) {
+            // Clear the back of the card
+            const flashBack = cardContainer.querySelector('.flash-back');
+            if (flashBack) {
+                flashBack.remove();
+            }
+        } else {
+            // Generate the back of the card
+            const flashBack = document.createElement('div');
+            flashBack.classList.add('card', 'flash-back', 'rounded-5', 'p-5', 'd-flex', 'flex-column', 'justify-content-center', 'align-items-center', 'h-100');
+            flashBack.innerHTML = `<p class="lead">{{ flashcards['data'][1]['meaning'] }}</p>`;
+            cardContainer.appendChild(flashBack);
+        }
+        cardContainer.classList.toggle('flipped');
+    });
+});
+</script>

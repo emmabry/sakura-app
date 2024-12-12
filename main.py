@@ -343,6 +343,29 @@ def edit_set(set_id):
     return render_template('edit.html', flashcards=flashcard_set, logged_in=current_user.is_authenticated)
 
 
+@app.route('/practice/<set_id>', methods=['POST', 'GET'])
+def practice(set_id):
+    card_set = db.session.execute(db.select(FlashcardSet).where(FlashcardSet.id == set_id)).scalar()
+    flashcard_set = {'set_id': set_id,
+                     'title': card_set.title,
+                     'description': card_set.description,
+                     'user_id': card_set.associated_user_id,
+                     'data': {}}
+    n = 1
+    cards = db.session.execute(db.select(Flashcard).where(Flashcard.set_id == card_set.id).limit(20)).scalars().all()
+    for card in cards:
+        word = db.session.execute(db.select(Vocab).where(Vocab.id == card.word_id)).scalar()
+        word_data = {
+            'id': word.id,
+            'kanji': word.word,
+            'reading': word.reading,
+            'meaning': word.meaning
+        }
+        flashcard_set['data'][n] = word_data
+        n += 1
+    count = 0
+
+    return render_template('practice.html', flashcards=flashcard_set, logged_in=current_user.is_authenticated)
 @app.route('/delete_set/<set_id>', methods=['POST', 'GET'])
 def delete_set(set_id):
     set_entry = FlashcardSet.query.filter_by(id=set_id).first()
