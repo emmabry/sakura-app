@@ -376,17 +376,12 @@ def practice_update():
     set_id = data.get('set_id')
     action = data.get('action')
     word = db.session.execute(db.select(Vocab).where(Vocab.word == kanji)).scalar()
-    print(word.reading)
     card = db.session.execute(db.select(Flashcard).where(Flashcard.word_id == word.id).where(Flashcard.set_id == set_id)).scalar()
-    print(card.known)
     if action == 'know':
         card.known = 'true'
     elif action == 'dont_know':
         card.known = 'false'
-    db.session.flush()
     db.session.commit()
-    print(card.known)
-    print(card.id)
     return jsonify({"success": True})
 
 @app.route('/delete_set/<set_id>', methods=['POST', 'GET'])
