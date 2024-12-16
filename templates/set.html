@@ -10,7 +10,7 @@
 {% endwith %}
             <h1 class="text-body-emphasis">{{ flashcards['title'] }}</h1>
             <p class="col-lg-6 mx-auto mb-4">{{ flashcards['description'] }}</p>
-            <a href="#" class="btn my-button">Practice</a>
+            <a href="{{  url_for('practice', set_id=flashcards['set_id']) }}" class="btn my-button">Practice</a>
             {% if current_user['id'] == flashcards['user_id'] %}
             <a href="{{  url_for('edit_set', set_id=flashcards['set_id']) }}" class="btn dark-button">Edit</a>
             <a href="{{  url_for('delete_set', set_id=flashcards['set_id']) }}" class="btn dark-button">Delete</a>

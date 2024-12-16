@@ -10,41 +10,71 @@
     <div class="container px-4 py-2 mt-1">
         <div class="row justify-content-center pt-2 pb-5">
             <div class="col-md-8">
-                <div class="d-flex flex-column h-100">
-                    <div class="to-flip card flash-front rounded-5 p-5 d-flex flex-column justify-content-center align-items-center h-100">
-                        <h3 class="display-4">{{ flashcards['data'][1]['kanji'] }}</h3>
-                        <p class="lead">{{ flashcards['data'][1]['reading'] }}</p>
+                <div class="d-flex flex-column h-100 card-container">
+                    <div class="to-flip card-container card flash-front rounded-5 p-5 d-flex flex-column justify-content-center align-items-center h-100">
+                        <h3 class="display-4">{{ flashcards['data'][count]['kanji'] }}</h3>
+                        <p class="lead">{{ flashcards['data'][count]['reading'] }}</p>
                         <audio controls class="my-2">
-                            <source src="{{ url_for('static', filename=flashcards['data'][1]['audio_file']) }}" type="audio/mpeg">
+                            <source src="{{ url_for('static', filename=flashcards['data'][count]['audio_file']) }}" type="audio/mpeg">
                             Your browser does not support the audio element.
                         </audio>
                     </div>
                 </div>
                 <div class="d-flex justify-content-center align-items-center px-2 py-2">
-                <a href="#" class="btn know-button m-2">Not sure</a>
-                <a href="#" class="btn no-button m-2">I know it!</a>
+                <a href="#" class="btn no-button m-2">Not sure</a>
+                <a href="#" class="btn know-button m-2">I know it!</a>
                     </div>
             </div>
         </div>
     </div>
 </main>
     <script>
-    // Flip Card
-document.querySelectorAll('.to-flip').forEach(card => {
+        const flashcards = {{ flashcards|tojson }};
+        let count = {{ count }};
+        const end = Object.keys(flashcards.data).length;
+
+const knowButton = document.querySelector('.know-button');
+const notSureButton = document.querySelector('.no-button');
+let wordElement = document.querySelector('.display-4');
+
+// Button functionality
+ const sendUpdate = (action) => {
+            const word = wordElement.textContent;
+            fetch('/practice_update/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ word: word, action: action }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log(`${word} marked as ${action}`);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            count++;
+        };
+        knowButton.addEventListener('click', () => sendUpdate('know'));
+        notSureButton.addEventListener('click', () => sendUpdate('dont_know'));
+
+        // Card flip functionality
+        document.querySelectorAll('.to-flip').forEach(card => {
     card.addEventListener('click', () => {
-        const cardContainer = card.closest('.card-container');
+        const cardContainer = document.querySelector('.card-container');
         if (cardContainer.classList.contains('flipped')) {
-            // Clear the back of the card
-            const flashBack = cardContainer.querySelector('.flash-back');
-            if (flashBack) {
-                flashBack.remove();
-            }
-        } else {
-            // Generate the back of the card
-            const flashBack = document.createElement('div');
-            flashBack.classList.add('card', 'flash-back', 'rounded-5', 'p-5', 'd-flex', 'flex-column', 'justify-content-center', 'align-items-center', 'h-100');
-            flashBack.innerHTML = `<p class="lead">{{ flashcards['data'][1]['meaning'] }}</p>`;
-            cardContainer.appendChild(flashBack);
+            const h3 = '<h3 class="display-4">{{ flashcards['data'][count]['kanji'] }}</h3>'
+            const p = '<p class="lead">{{ flashcards['data'][count]['reading'] }}</p>'
+            const audio =' <audio controls class="my-2"> <source src="{{ url_for('static', filename=flashcards['data'][count]['audio_file']) }}" type="audio/mpeg"> Your browser does not support the audio element. </audio>'
+            card.innerHTML = h3 + p + audio;
+            card.style.backgroundColor = '#F7AEC1';
+        }
+        else {
+            card.innerHTML =  '<h3 class="display-4">{{ flashcards['data'][count]['meaning'] }}</h3>'
+            card.style.backgroundColor = 'white';
+            card.style.border = '2px solid #FF69B4';
+            card.style.borderRadius = '15px';
         }
         cardContainer.classList.toggle('flipped');
     });

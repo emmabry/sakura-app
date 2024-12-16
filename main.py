@@ -1,7 +1,7 @@
 from img_to_speech import get_speech, img_to_text, translate
 from login import LoginForm, RegistrationForm
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, request, flash, redirect, url_for, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import Column, Integer, String, Text, func, ForeignKey
 from sqlalchemy.orm import DeclarativeBase
@@ -359,13 +359,24 @@ def practice(set_id):
             'id': word.id,
             'kanji': word.word,
             'reading': word.reading,
-            'meaning': word.meaning
+            'meaning': word.meaning,
+            'audio_file': f'vocab{n}.mp3'
         }
         flashcard_set['data'][n] = word_data
+        get_speech(word.reading, f'static/vocab{n}.mp3')
         n += 1
-    count = 0
+    count = 1
+    return render_template('practice.html', flashcards=flashcard_set, count=count, logged_in=current_user.is_authenticated)
 
-    return render_template('practice.html', flashcards=flashcard_set, logged_in=current_user.is_authenticated)
+@app.route('/practice_update/', methods=['POST', 'GET'])
+def practice_update():
+    data = request.json
+    word = data.get('word')
+    action = data.get('action')
+    print(word)
+    print(action)
+    return jsonify({"success": True})
+
 @app.route('/delete_set/<set_id>', methods=['POST', 'GET'])
 def delete_set(set_id):
     set_entry = FlashcardSet.query.filter_by(id=set_id).first()
