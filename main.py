@@ -65,6 +65,7 @@ class Flashcard(db.Model):
     id = Column(Integer, primary_key=True)
     word_id = Column(Integer, ForeignKey('vocab.id'))
     set_id = Column(Integer, ForeignKey('FlashcardSet.id'))
+    known = Column(String, default='false')
 
 
 @app.route('/')
@@ -371,10 +372,21 @@ def practice(set_id):
 @app.route('/practice_update/', methods=['POST', 'GET'])
 def practice_update():
     data = request.json
-    word = data.get('word')
+    kanji = data.get('word')
+    set_id = data.get('set_id')
     action = data.get('action')
-    print(word)
-    print(action)
+    word = db.session.execute(db.select(Vocab).where(Vocab.word == kanji)).scalar()
+    print(word.reading)
+    card = db.session.execute(db.select(Flashcard).where(Flashcard.word_id == word.id).where(Flashcard.set_id == set_id)).scalar()
+    print(card.known)
+    if action == 'know':
+        card.known = 'true'
+    elif action == 'dont_know':
+        card.known = 'false'
+    db.session.flush()
+    db.session.commit()
+    print(card.known)
+    print(card.id)
     return jsonify({"success": True})
 
 @app.route('/delete_set/<set_id>', methods=['POST', 'GET'])

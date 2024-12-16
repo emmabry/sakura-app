@@ -21,8 +21,8 @@
                     </div>
                 </div>
                 <div class="d-flex justify-content-center align-items-center px-2 py-2">
-                <a href="#" class="btn no-button m-2">Not sure</a>
-                <a href="#" class="btn know-button m-2">I know it!</a>
+                <a class="btn no-button m-2">Not sure</a>
+                <a class="btn know-button m-2">I know it!</a>
                     </div>
             </div>
         </div>
@@ -40,38 +40,59 @@ let wordElement = document.querySelector('.display-4');
 // Button functionality
  const sendUpdate = (action) => {
             const word = wordElement.textContent;
+            const path = window.location.pathname;
+            const set_id = path.split('/')[2];
             fetch('/practice_update/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ word: word, action: action }),
+                body: JSON.stringify({ set_id: set_id, word: word, action: action }),
             })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        console.log(`${word} marked as ${action}`);
+                        console.log(`${word} from set ${set_id} marked as ${action}`);
                     }
                 })
                 .catch(error => console.error('Error:', error));
             count++;
+            updateFlashcard()
+            wordElement = document.querySelector('.display-4');
         };
         knowButton.addEventListener('click', () => sendUpdate('know'));
         notSureButton.addEventListener('click', () => sendUpdate('dont_know'));
 
+        const updateFlashcard = () => {
+    if (count > end) {
+        // End of flashcards
+        const card = document.querySelector('.card');
+        card.innerHTML =`<h3 class="display-4">You have completed the set!</h3>`;
+        knowButton.style.display = 'none';
+        notSureButton.style.display = 'none';
+    } else {
+        const nextCard = flashcards.data[count];
+        const card = document.querySelector('.card');
+        const h3 = `<h3 class="display-4">${flashcards.data[count].kanji}</h3>`;
+            const p = `<p class="lead">${flashcards.data[count].reading}</p>`
+            const audio =`<audio controls class="my-2"> <source src="/static/${flashcards.data[count].audio_file}" type="audio/mpeg"> Your browser does not support the audio element. </audio>`
+            card.innerHTML = h3 + p + audio;
+            card.style.backgroundColor = '#F7AEC1';
+    }
+};
         // Card flip functionality
         document.querySelectorAll('.to-flip').forEach(card => {
     card.addEventListener('click', () => {
         const cardContainer = document.querySelector('.card-container');
         if (cardContainer.classList.contains('flipped')) {
-            const h3 = '<h3 class="display-4">{{ flashcards['data'][count]['kanji'] }}</h3>'
-            const p = '<p class="lead">{{ flashcards['data'][count]['reading'] }}</p>'
-            const audio =' <audio controls class="my-2"> <source src="{{ url_for('static', filename=flashcards['data'][count]['audio_file']) }}" type="audio/mpeg"> Your browser does not support the audio element. </audio>'
+            const h3 = `<h3 class="display-4">${flashcards.data[count].kanji}</h3>`;
+            const p = `<p class="lead">${flashcards.data[count].reading}</p>`
+            const audio =`<audio controls class="my-2"> <source src="/static/${flashcards.data[count].audio_file}" type="audio/mpeg"> Your browser does not support the audio element. </audio>`
             card.innerHTML = h3 + p + audio;
             card.style.backgroundColor = '#F7AEC1';
         }
         else {
-            card.innerHTML =  '<h3 class="display-4">{{ flashcards['data'][count]['meaning'] }}</h3>'
+            card.innerHTML =  `<h3 class="display-4">${flashcards.data[count].meaning}</h3>`;
             card.style.backgroundColor = 'white';
             card.style.border = '2px solid #FF69B4';
             card.style.borderRadius = '15px';
