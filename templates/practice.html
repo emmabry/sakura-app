@@ -31,6 +31,8 @@
     <script>
         const flashcards = {{ flashcards|tojson }};
         let count = {{ count }};
+        let knownCount = 0;
+        let unknownCount = 0;
         const end = Object.keys(flashcards.data).length;
 
 const knowButton = document.querySelector('.know-button');
@@ -56,22 +58,34 @@ let wordElement = document.querySelector('.display-4');
                     }
                 })
                 .catch(error => console.error('Error:', error));
+            wordElement = document.querySelector('.display-4');
+            if (action === 'know') {
+                knownCount++;
+                console.log(knownCount);
+            } else {
+                unknownCount++;
+                console.log(unknownCount);
+            }
             count++;
             updateFlashcard()
-            wordElement = document.querySelector('.display-4');
         };
         knowButton.addEventListener('click', () => sendUpdate('know'));
         notSureButton.addEventListener('click', () => sendUpdate('dont_know'));
 
         const updateFlashcard = () => {
     if (count > end) {
-        // End of flashcards
         const card = document.querySelector('.card');
-        card.innerHTML =`<h3 class="display-4">You have completed the set!</h3>`;
+        let h3 =`<h3 class="display-4">Round complete!</h3>`;
+        let p = `<p class="lead">You knew <span style="color:green">${knownCount} words</span> and didn't know <span style="color:red">${unknownCount} words</span>.</p>`
+        card.innerHTML = h3 + p
+        const resetButton = document.createElement('a');
+        resetButton.classList.add('btn', 'dark-button', 'm-2');
+        resetButton.textContent = 'Reset';
+        resetButton.href = window.location.href;
+        card.appendChild(resetButton);
         knowButton.style.display = 'none';
         notSureButton.style.display = 'none';
     } else {
-        const nextCard = flashcards.data[count];
         const card = document.querySelector('.card');
         const h3 = `<h3 class="display-4">${flashcards.data[count].kanji}</h3>`;
             const p = `<p class="lead">${flashcards.data[count].reading}</p>`
