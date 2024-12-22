@@ -1,6 +1,5 @@
 
-# Language Learning Project
-
+# Sakura - Japanese Language Learning App
 
 An interactive language learning application featuring flashcard management, audio generation, and smart discovery features, with a focus on Japanese language learning.
 
