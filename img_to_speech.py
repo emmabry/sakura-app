@@ -9,7 +9,6 @@ load_dotenv()
 
 TESSDATA_PREFIX = os.getenv('TESSDATA_PREFIX')
 os.environ['TESSDATA_PREFIX'] = TESSDATA_PREFIX
-pytesseract.pytesseract.tesseract_cmd = '/usr/share/tesseract-ocr/4.00'
 
 def get_speech(requested_text, filepath):
     tts = gTTS(requested_text, lang='ja')
