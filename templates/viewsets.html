@@ -10,7 +10,7 @@
       <div class="col">
         <div class="row row-cols-5 row-cols-sm-5 g-4 justify-content-center">
             {% for set in sets %}
-          <div class="col d-flex flash-front flex-column align-items-md-center gap-2">
+          <div class="col d-flex flash-set flex-column align-items-md-center gap-2">
               <a href=" {{ url_for('show_set', set_id=set.id) }} ">
               <img src="/static/cherry-blossom.png" class="mx-1" alt="Sakura" width="32" height="32">
                   </a>
