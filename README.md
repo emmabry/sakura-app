@@ -9,7 +9,7 @@ An interactive language learning application featuring flashcard management, aud
 - Extensive Japanese language database
 - Create, edit, and practice flashcards
 - Organize flashcards into custom decks
-- Track learning progress
+- Track learning progress 
 
 🔊 Auto-Generated Audio
 
