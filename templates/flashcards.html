@@ -23,42 +23,32 @@
 
       <div class="col">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4 justify-content-center">
-          <div class="flash-set col d-flex flex-column align-items-md-center gap-2">
-              <a href=" {{ url_for('show_set', set_id='5') }} ">
+          <div class="flash-set col d-flex flex-column align-items-md-center gap-2" onclick="window.location.href='{{ url_for('show_set', set_id='5') }}'">
               <img src="/static/cherry-blossom.png" class="mx-1" alt="Sakura" width="32" height="32">
-                  </a>
             <h4 class="fw-semibold mb-0 text-body-emphasis">Beginner</h4>
             <p class="text-body-secondary">N5 Vocabulary to start with.</p>
           </div>
 
-          <div class="col d-flex flash-set flex-column align-items-md-center gap-2">
-              <a href=" {{ url_for('show_set', set_id='4') }} ">
+          <div class="col d-flex flash-set flex-column align-items-md-center gap-2" onclick="window.location.href='{{ url_for('show_set', set_id='4') }}'">
               <img src="/static/cherry-blossom.png" class="mx-1" alt="Sakura" width="32" height="32">
-              </a>
             <h4 class="fw-semibold mb-0 text-body-emphasis">Elementary</h4>
             <p class="text-body-secondary">N4 Level vocabulary.</p>
           </div>
 
-          <div class="col d-flex flash-set flex-column align-items-md-center gap-2">
-              <a href=" {{ url_for('show_set', set_id='3') }} ">
+          <div class="col d-flex flash-set flex-column align-items-md-center gap-2" onclick="window.location.href='{{ url_for('show_set', set_id='3') }}'">
               <img src="/static/cherry-blossom.png" class="mx-1" alt="Sakura" width="32" height="32">
-                </a>
             <h4 class="fw-semibold mb-0 text-body-emphasis">Intermediate</h4>
             <p class="text-body-secondary">N3 Vocabulary.</p>
           </div>
 
-          <div class="col d-flex flash-set flex-column align-items-md-center gap-2">
-              <a href=" {{ url_for('show_set', set_id='2') }} ">
+          <div class="col d-flex flash-set flex-column align-items-md-center gap-2" onclick="window.location.href='{{ url_for('show_set', set_id=2) }}'">
               <img src="/static/cherry-blossom.png" class="mx-1" alt="Sakura" width="32" height="32">
-                </a>
             <h4 class="fw-semibold mb-0 text-body-emphasis">Advanced</h4>
             <p class="text-body-secondary">A collection of N2 vocabulary.</p>
           </div>
 
-         <div class="col d-flex flash-set flex-column align-items-md-center gap-2">
-             <a href=" {{ url_for('show_set', set_id='1') }} ">
+         <div class="col d-flex flash-set flex-column align-items-md-center gap-2" onclick="window.location.href='{{ url_for('show_set', set_id=1) }}'">
               <img src="/static/cherry-blossom.png" class="mx-1" alt="Sakura" width="32" height="32">
-                </a>
             <h4 class="fw-semibold mb-0 text-body-emphasis">Expert</h4>
             <p class="text-body-secondary">A collection of N1 vocabulary.</p>
           </div>
