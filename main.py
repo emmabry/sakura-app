@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import Column, Integer, String, Text, func, ForeignKey
 from sqlalchemy.orm import DeclarativeBase
 from flask_sqlalchemy import SQLAlchemy
+import time
 import os
 
 # App Config
@@ -175,15 +176,16 @@ def get_vocab():
     entries = []
     n = 1
     for entry in query:
+        audio_file_path = f'static/vocab{n}.mp3'
+        get_speech(entry.reading, audio_file_path)
         mydict = {
             'id': entry.id,
             'kanji': entry.word,
             'reading': entry.reading,
             'meaning': entry.meaning,
-            'audio_file': f'vocab{n}.mp3'
+            'audio_file': f'vocab{n}.mp3?cb={int(time.time())}'
         }
         entries.append(mydict)
-        get_speech(entry.reading, f'static/vocab{n}.mp3')
         n += 1
     return render_template('vocab.html', vocab_list=entries, sets=user_sets, logged_in=current_user.is_authenticated)
 
@@ -215,18 +217,18 @@ def show_set(set_id):
     cards = db.session.execute(db.select(Flashcard).where(Flashcard.set_id == card_set.id).limit(20)).scalars().all()
     for card in cards:
         word = db.session.execute(db.select(Vocab).where(Vocab.id == card.word_id)).scalar()
+        audio_file_path = f'static/vocab{n}.mp3'
+        get_speech(word.reading, audio_file_path)
         word_data = {
             'id': word.id,
             'kanji': word.word,
             'reading': word.reading,
             'meaning': word.meaning,
-            'audio_file': f'vocab{n}.mp3'
+            'audio_file': f'vocab{n}.mp3?cb={int(time.time())}'
         }
         flashcard_set['data'][n] = word_data
-        get_speech(word.reading, f'static/vocab{n}.mp3')
         n += 1
     return render_template('set.html', flashcards=flashcard_set, logged_in=current_user.is_authenticated)
-
 
 @app.route('/create', methods=['POST', 'GET'])
 def create_deck():
@@ -343,7 +345,6 @@ def edit_set(set_id):
         return redirect(url_for('show_set', set_id=card_set.id))
     return render_template('edit.html', flashcards=flashcard_set, logged_in=current_user.is_authenticated)
 
-
 @app.route('/practice/<set_id>', methods=['POST', 'GET'])
 def practice(set_id):
     card_set = db.session.execute(db.select(FlashcardSet).where(FlashcardSet.id == set_id)).scalar()
@@ -356,15 +357,16 @@ def practice(set_id):
     cards = db.session.execute(db.select(Flashcard).where(Flashcard.set_id == card_set.id).limit(20)).scalars().all()
     for card in cards:
         word = db.session.execute(db.select(Vocab).where(Vocab.id == card.word_id)).scalar()
+        audio_file_path = f'static/vocab{n}.mp3'
+        get_speech(word.reading, audio_file_path)
         word_data = {
             'id': word.id,
             'kanji': word.word,
             'reading': word.reading,
             'meaning': word.meaning,
-            'audio_file': f'vocab{n}.mp3'
+            'audio_file': f'vocab{n}.mp3?cb={int(time.time())}'
         }
         flashcard_set['data'][n] = word_data
-        get_speech(word.reading, f'static/vocab{n}.mp3')
         n += 1
     count = 1
     return render_template('practice.html', flashcards=flashcard_set, count=count, logged_in=current_user.is_authenticated)

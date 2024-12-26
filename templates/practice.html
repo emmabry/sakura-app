@@ -15,7 +15,7 @@
                         <h3 class="display-4">{{ flashcards['data'][count]['kanji'] }}</h3>
                         <p class="lead">{{ flashcards['data'][count]['reading'] }}</p>
                         <audio controls class="my-2">
-                            <source src="{{ url_for('static', filename=flashcards['data'][count]['audio_file']) }}" type="audio/mpeg">
+                            <source src="{{ url_for('static', filename=flashcards['data'][count]['audio_file'].split('?')[0]) }}?cb={{ flashcards['data'][count]['audio_file'].split('?')[1].split('=')[1] }}" type="audio/mpeg">
                             Your browser does not support the audio element.
                         </audio>
                     </div>
