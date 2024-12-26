@@ -44,6 +44,7 @@ Using Image-to-Speech
 - Click "Image to Speech"
 - Upload image or use camera
 - Listen to pronunciation
+- **Currently hidden in live demo due to tesseract/render issues**
 
 Discovering New Words
 
